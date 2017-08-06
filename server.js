@@ -34,13 +34,16 @@ var validateRequest = function(req, res, processRequest){
     res.sendStatus(403);
     return;
   }
+  console.log('URL" 
+              req.baseUrl);
   
   req.on('data', function (data) {
-      jsonString += data;
+    jsonString += data;
   });
   req.on('end', function () {
     if (jsonString != '') {
       jsonBody = JSON.parse(jsonString);
+      console.log(jsonBody);
       if (jsonBody != null) {
         requestToken = jsonBody['token'];
         console.log("Request token = " + requestToken);
@@ -50,8 +53,6 @@ var validateRequest = function(req, res, processRequest){
           return;
         }
       }
-      res.sendStatus(404);
-      return;
     }
     console.log("401 - Authentication failed");
     res.sendStatus(401);
