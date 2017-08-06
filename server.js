@@ -34,8 +34,6 @@ var validateRequest = function(req, res, processRequest){
     res.sendStatus(403);
     return;
   }
-  console.log('URL" 
-              req.baseUrl);
   
   req.on('data', function (data) {
     jsonString += data;
@@ -43,7 +41,6 @@ var validateRequest = function(req, res, processRequest){
   req.on('end', function () {
     if (jsonString != '') {
       jsonBody = JSON.parse(jsonString);
-      console.log(jsonBody);
       if (jsonBody != null) {
         requestToken = jsonBody['token'];
         console.log("Request token = " + requestToken);
