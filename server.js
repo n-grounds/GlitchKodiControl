@@ -50,6 +50,8 @@ var validateRequest = function(req, res, processRequest){
           return;
         }
       }
+      res.sendStatus(404);
+      return;
     }
     console.log("401 - Authentication failed");
     res.sendStatus(401);
