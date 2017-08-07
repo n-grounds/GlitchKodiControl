@@ -419,12 +419,12 @@ var kodiExecuteAddon = function(request, response) {
     addonName: request.query.q.trim().toLowerCase()
   };
   
-  console.log("Addon request received to execute \"" + param["addonName"] + "\"");
+  console.log('Addon request received to execute "' + param["addonName"] + '"');
 
-  kodiFindAddon(request, response, kodiExecuteFoundAddon, param);
+  kodiFindAddon(request, response, param);
 };
 
-var kodiFindAddon = function(req, res, nextAction, param) {
+var kodiFindAddon = function( req, res, param ) {
   kodi.Addons.GetAddons()
   .then(
     function(addons) {
@@ -433,69 +433,23 @@ var kodiFindAddon = function(req, res, nextAction, param) {
         throw new Error('no results');
       }
       // Create the fuzzy search object
-      var fuse = new Fuse(shows.result.addons, fuzzySearchOptions)
+      var fuse = new Fuse(addons.result.addons, fuzzySearchOptions)
       var searchResult = fuse.search(param["addonName"])
 
       // If there's a result
       if (searchResult.length > 0 && searchResult[0].addonid != null) {
         var addonFound = searchResult[0];
-        console.log("Found addon \"" + addonFound.addonid + "\" (type " + addonFound.type + ")");
+        console.log('Found addon "' + addonFound.addonid + '" (type ' + addonFound.type + ")");
         param["addonid"] = addonFound.addonid;
-        nextAction( req, res, param );
-        kodi.Addons.ExecuteAddon()
+        //kodi.Addons.ExecuteAddon( addonFound.addonid );
       } else {
-        throw new Error("Couldn\'t find addon \"" + param["addonName"] + "\" in the " + addons.results.addons.length + " addons listed");
+        throw new Error("Couldn\'t find addon \"" + param["addonName"] + "\" in the " + addons.result.addons.length + " addons listed: " + searchResult );
       }
-    }
-  )
-  .catch(function(e) {
-    console.log(e);
-  })
-};
+    } )
+  .catch( function( e ) {
+    console.log( e );
+  } )
 
-
-var kodiExecuteFoundAddon = function(req, res, RequestParams) {
-  console.log("Searching for next episode of Show ID " + RequestParams["tvshowid"]  + "...");          
-
-  // Build filter to search unwatched episodes
-  var param = {
-          tvshowid: RequestParams["tvshowid"],
-          properties: ['playcount', 'showtitle', 'season', 'episode'],
-          // Sort the result so we can grab the first unwatched episode
-          sort: {
-            order: 'ascending',
-            method: 'episode',
-            ignorearticle: true
-          }
-        }
-  kodi.VideoLibrary.GetEpisodes(param)
-  .then(function (episodeResult) {
-    if(!(episodeResult && episodeResult.result && episodeResult.result.episodes && episodeResult.result.episodes.length > 0)) {
-      throw new Error('no results');
-    }
-    var episodes = episodeResult.result.episodes;
-    // Check if there are episodes for this TV show
-    if (episodes) {
-      console.log("found episodes..");
-      // Check whether we have seen this episode already
-      var firstUnplayedEpisode = episodes.filter(function (item) {
-        return item.playcount === 0
-      })
-      if (firstUnplayedEpisode.length > 0) {
-        var episdoeToPlay = firstUnplayedEpisode[0]; // Resolve the first unplayed episode
-        console.log("Playing season " + episdoeToPlay.season + " episode " + episdoeToPlay.episode + " (ID: " + episdoeToPlay.episodeid + ")");
-        var param = {
-            item: {
-              episodeid: episdoeToPlay.episodeid
-            }
-          }
-        return kodi.Player.Open(param);
-      }
-    }
-  })
-  .catch(function(e) {
-    console.log(e);
-  });
   res.sendStatus(200);
 };
 
