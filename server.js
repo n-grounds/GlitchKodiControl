@@ -447,7 +447,7 @@ var kodiFindAddon = function( req, res, param ) {
         var addonFound = searchResult[0];
         console.log('Found addon "' + addonFound.addonid + '" (type ' + addonFound.type + ")");
         param["addonid"] = addonFound.addonid;
-        kodi.Addons.ExecuteAddon( addonFound.addonid );
+        kodi.Addons.ExecuteAddon( { "addonid" : addonFound.addonid } );
       } else {
         throw new Error("Couldn\'t find addon \"" + param["addonName"] + "\" in the " + addons.result.addons.length + " addons listed: " + searchResult );
       }
