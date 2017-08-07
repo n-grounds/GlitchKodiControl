@@ -428,12 +428,11 @@ var kodiFindAddon = function( req, res, param ) {
   kodi.Addons.GetAddons()
   .then(
     function(addons) {
-      console.log( "Addons: " + JSON.stringify(addons.result) );
       if(!(addons && addons.result && addons.result.addons && addons.result.addons.length > 0)) {
         throw new Error('no results');
       }
       // fuzzy search
-      var searchResult = null;
+      var searchResult = [];
       for( var i = 0; i < addons.result.addons.length; i++ ) {
         if( addons.result.addons[i]['addonid'].indexOf( param['addonName'] ) != -1 ) {
           searchResult = [ addons.result.addons[i] ];
@@ -448,7 +447,7 @@ var kodiFindAddon = function( req, res, param ) {
         var addonFound = searchResult[0];
         console.log('Found addon "' + addonFound.addonid + '" (type ' + addonFound.type + ")");
         param["addonid"] = addonFound.addonid;
-        //kodi.Addons.ExecuteAddon( addonFound.addonid );
+        kodi.Addons.ExecuteAddon( addonFound.addonid );
       } else {
         throw new Error("Couldn\'t find addon \"" + param["addonName"] + "\" in the " + addons.result.addons.length + " addons listed: " + searchResult );
       }
