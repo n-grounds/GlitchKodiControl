@@ -408,6 +408,22 @@ var tryPlayingChannelInGroup = function(searchOptions, reqChannel, chGroups, cur
     }
   };
 
+// Parse request to execute addon
+// Request format:   http://[THIS_SERVER_IP_ADDRESS]/executeaddon?q=[ADDON_NAME]
+app.get("/executeaddon", function (request, response) {
+  validateRequest(request, response, kodiExecuteAddon)
+});
+
+var kodiExecuteAddon = function(request, response) {
+  var param = {
+    addonName: request.query.q.trim().toLowerCase()
+  };
+  
+  console.log("Addon Show request received to play \"" + param["addonName"] + "\"");
+
+  kodiFindTvshow (request, response, kodiPlayNextUnwatchedEpisode, param);
+};
+
 
 app.get("/", function (request, response) {
   response.sendFile(__dirname + '/views/index.html');
