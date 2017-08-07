@@ -432,9 +432,16 @@ var kodiFindAddon = function( req, res, param ) {
       if(!(addons && addons.result && addons.result.addons && addons.result.addons.length > 0)) {
         throw new Error('no results');
       }
-      // Create the fuzzy search object
-      var fuse = new Fuse(addons.result.addons, fuzzySearchOptions)
-      var searchResult = fuse.search(param["addonName"])
+      // fuzzy search
+      var searchResult = null;
+      for( var i = 0; i < addons.result.addons.length; i++ ) {
+        if( addons.result.addons[i]['addonid'].indexOf( param['addonName'] ) != -1 ) {
+          searchResult = [ addons.result.addons[i] ];
+          break;
+        }
+      }
+//      var fuse = new Fuse(addons.result.addons, fuzzySearchOptions)
+//      var searchResult = fuse.search(param["addonName"])
 
       // If there's a result
       if (searchResult.length > 0 && searchResult[0].addonid != null) {
