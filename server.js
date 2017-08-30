@@ -353,8 +353,7 @@ var kodiPlayRandomEpisode = function(req, res, RequestParams) {
             ignorearticle: true
           }
         }
-  kodi.VideoLibrary.GetEpisodes(param)
-  .then(function (episodeResult) {
+  kodi.VideoLibrary.GetEpisodes(param).then(function (episodeResult) {
     if(!(episodeResult && episodeResult.result && episodeResult.result.episodes && episodeResult.result.episodes.length > 0)) {
       throw new Error('no results');
     }
@@ -367,19 +366,22 @@ var kodiPlayRandomEpisode = function(req, res, RequestParams) {
       // random selection, so it is possible to randomly select the
       // most watched episode, but more probable to select the lesser
       // watched episode(s)
-      var bigCount = episodes.filter(function (item) {
-        return item.playcount === 0
-      })
-      if (firstUnplayedEpisode.length > 0) {
-        var episdoeToPlay = firstUnplayedEpisode[0]; // Resolve the first unplayed episode
-        console.log("Playing season " + episdoeToPlay.season + " episode " + episdoeToPlay.episode + " (ID: " + episdoeToPlay.episodeid + ")");
-        var param = {
-            item: {
-              episodeid: episdoeToPlay.episodeid
-            }
-          }
-        return kodi.Player.Open(param);
+      var bigCount = episodes.map(function (item) { return item.playcount + 1; })
+          .reduce(function(left, right) { return left + right; });
+      var picked = Math.floor( Math.random() * bigCount );
+      for( var i = 0, count = 0; i < episodes.length; i++ ) {
+        if( picked < episodes[i].playcount + 1 + count ) {
+          console.log("Playing season " + episodes[i].season + " episode " + episodes[i].episode + " (ID: " + episodes[i].episodeid + ")");
+          var param = {
+              item: {
+                episodeid: episodes[i].episodeid
+              }
+            };
+          return kodi.Player.Open(param);
+        }
+        count += episodes[i].playcount + 1;
       }
+      console.log("ERROR! Picked " + picked + " out of " + bigCount + " but didn't select any of " + episodes.length + " episodes?");
     }
   })
   .catch(function(e) {
