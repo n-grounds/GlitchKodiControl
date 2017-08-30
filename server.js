@@ -371,7 +371,9 @@ var kodiPlayRandomEpisode = function(req, res, RequestParams) {
       var picked = Math.floor( Math.random() * bigCount );
       for( var i = 0, count = 0; i < episodes.length; i++ ) {
         if( picked < episodes[i].playcount + 1 + count ) {
-          console.log("Playing season " + episodes[i].season + " episode " + episodes[i].episode + " (ID: " + episodes[i].episodeid + ")");
+          var e = episodes[i];
+          console.log("Playing season " + e.season + " episode " + e.episode
+                      + " (ID: " + e.episodeid + "), played " + e.playcount + " times before");
           var param = {
               item: {
                 episodeid: episodes[i].episodeid
