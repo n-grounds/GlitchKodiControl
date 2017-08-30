@@ -366,11 +366,14 @@ var kodiPlayRandomEpisode = function(req, res, RequestParams) {
       // random selection, so it is possible to randomly select the
       // most watched episode, but more probable to select the lesser
       // watched episode(s)
-      var bigCount = episodes.map(function (item) { return item.playcount + 1; })
+      var maxPlayed = episodes.map(function(item) { return item.playcount; }).reduce(function(l, r) { return Math.max(l, r); });
+      console.log('maxPlayed = ' + maxPlayed);
+      var bigCount = episodes.map(function (item) { return maxPlayed - item.playcount + 1; })
           .reduce(function(left, right) { return left + right; });
       var picked = Math.floor( Math.random() * bigCount );
+      console.log('Random selection: ' + picked +  ' (out of ' + bigCount + ')');
       for( var i = 0, count = 0; i < episodes.length; i++ ) {
-        if( picked < episodes[i].playcount + 1 + count ) {
+        if( picked < maxPlayed - episodes[i].playcount + 1 + count ) {
           var e = episodes[i];
           console.log("Playing season " + e.season + " episode " + e.episode
                       + " (ID: " + e.episodeid + "), played " + e.playcount + " times before");
@@ -381,7 +384,7 @@ var kodiPlayRandomEpisode = function(req, res, RequestParams) {
             };
           return kodi.Player.Open(param);
         }
-        count += episodes[i].playcount + 1;
+        count += maxPlayed - episodes[i].playcount + 1;
       }
       console.log("ERROR! Picked " + picked + " out of " + bigCount + " but didn't select any of " + episodes.length + " episodes?");
     }
