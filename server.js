@@ -360,7 +360,7 @@ var kodiPlayRandomEpisode = function(req, res, RequestParams) {
     var episodes = episodeResult.result.episodes;
     // Check if there are episodes for this TV show
     if (episodes) {
-      console.log("found episodes..");
+      console.log("found " + episodes.length + " episodes of " + episodes[0].showtitle);
       // Calculate the number of episodes + total play counts
       // we'll use an "inverse of play count" as a way to bias the
       // random selection, so it is possible to randomly select the
