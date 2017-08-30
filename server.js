@@ -205,6 +205,23 @@ var kodiPlayEpisodeHandler = function(request, response) {
   kodiFindTvshow (request, response, kodiPlaySpecificEpisode, param);
 };
 
+// Parse request to watch a random episode for a given tv show
+// Request format:   http://[THIS_SERVER_IP_ADDRESS]/playrandomepisode?q[TV_SHOW_NAME]
+app.get("/playrandomepisode", function (request, response) {
+  validateRequest(request, response, kodiPlayRandomEpisodeHandler)
+});
+
+var kodiPlayRandomEpisodeHandler = function(request, response) {
+  tryActivateTv();
+  var param = {
+    tvshowTitle: request.query.q.trim().toLowerCase()
+  };
+  
+  console.log("Random Episode request received to play \"" + param["tvshowTitle"] + "\"");
+  
+  kodiFindTvshow (request, response, kodiPlayRandomEpisode, param);
+};
+
 
 var kodiFindTvshow = function(req, res, nextAction, param) {
   kodi.VideoLibrary.GetTVShows()
@@ -305,6 +322,56 @@ var kodiPlaySpecificEpisode = function(req, res, RequestParams) {
       })
       if (matchedEpisodes.length > 0) {
         var episdoeToPlay = matchedEpisodes[0];
+        console.log("Playing season " + episdoeToPlay.season + " episode " + episdoeToPlay.episode + " (ID: " + episdoeToPlay.episodeid + ")");
+        var param = {
+            item: {
+              episodeid: episdoeToPlay.episodeid
+            }
+          }
+        return kodi.Player.Open(param);
+      }
+    }
+  })
+  .catch(function(e) {
+    console.log(e);
+  });
+  res.sendStatus(200);
+};
+
+
+var kodiPlayRandomEpisode = function(req, res, RequestParams) {
+  console.log("Searching for random episode of Show ID " + RequestParams["tvshowid"]  + "...");          
+
+  // Build filter to search unwatched episodes
+  var param = {
+          tvshowid: RequestParams["tvshowid"],
+          properties: ['playcount', 'showtitle', 'season', 'episode'],
+          // Sort the result so we can grab the first unwatched episode
+          sort: {
+            order: 'ascending',
+            method: 'episode',
+            ignorearticle: true
+          }
+        }
+  kodi.VideoLibrary.GetEpisodes(param)
+  .then(function (episodeResult) {
+    if(!(episodeResult && episodeResult.result && episodeResult.result.episodes && episodeResult.result.episodes.length > 0)) {
+      throw new Error('no results');
+    }
+    var episodes = episodeResult.result.episodes;
+    // Check if there are episodes for this TV show
+    if (episodes) {
+      console.log("found episodes..");
+      // Calculate the number of episodes + total play counts
+      // we'll use an "inverse of play count" as a way to bias the
+      // random selection, so it is possible to randomly select the
+      // most watched episode, but more probable to select the lesser
+      // watched episode(s)
+      var bigCount = episodes.filter(function (item) {
+        return item.playcount === 0
+      })
+      if (firstUnplayedEpisode.length > 0) {
+        var episdoeToPlay = firstUnplayedEpisode[0]; // Resolve the first unplayed episode
         console.log("Playing season " + episdoeToPlay.season + " episode " + episdoeToPlay.episode + " (ID: " + episdoeToPlay.episodeid + ")");
         var param = {
             item: {
