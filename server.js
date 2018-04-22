@@ -222,6 +222,21 @@ var kodiPlayRandomEpisodeHandler = function(request, response) {
   kodiFindTvshow (request, response, kodiPlayRandomEpisode, param);
 };
 
+app.get("/queuerandomepisode", function (request, response) {
+  validateRequest(request, response, kodiQueueRandomEpisodeHandler)
+});
+
+var kodiQueueRandomEpisodeHandler = function(request, response) {
+  tryActivateTv();
+  var param = {
+    tvshowTitle: request.query.q.trim().toLowerCase()
+  };
+  
+  console.log("Random Episode request received to queue \"" + param["tvshowTitle"] + "\"");
+  
+  kodiFindTvshow(request, response, kodiQueueRandomEpisode, param);
+};
+
 
 var kodiFindTvshow = function(req, res, nextAction, param) {
   kodi.VideoLibrary.GetTVShows()
@@ -340,6 +355,29 @@ var kodiPlaySpecificEpisode = function(req, res, RequestParams) {
 
 
 var kodiPlayRandomEpisode = function(req, res, RequestParams) {
+  kodiSelectRandomEpisodeAnd( req, res, RequestParams, function(episodeid) {
+    var param = {
+      item: {
+        episodeid: episodeid
+      }
+    };
+    return kodi.Player.Open(param);
+  } );
+}
+
+var kodiQueueRandomEpisode = function(req, res, RequestParams) {
+  kodiSelectRandomEpisodeAnd( req, res, RequestParams, function(episodeid) {
+    var param = {
+      playlistid : 1,
+      item: {
+        episodeid: episodeid
+      }
+    };
+    return kodi.Playlist.Add(param);
+  } );
+}
+
+var kodiSelectRandomEpisodeAnd = function(req, res, RequestParams, andCall) {
   console.log("Searching for random episode of Show ID " + RequestParams["tvshowid"]  + "...");          
 
   // Build filter to search unwatched episodes
@@ -377,12 +415,7 @@ var kodiPlayRandomEpisode = function(req, res, RequestParams) {
           var e = episodes[i];
           console.log("Playing season " + e.season + " episode " + e.episode
                       + " (ID: " + e.episodeid + "), played " + e.playcount + " times before");
-          var param = {
-              item: {
-                episodeid: episodes[i].episodeid
-              }
-            };
-          return kodi.Playlist.Add(param);
+          andCall( episodes[i].episodeid );
         }
         count += maxPlayed - episodes[i].playcount + 1;
       }
