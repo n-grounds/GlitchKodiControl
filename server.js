@@ -415,7 +415,7 @@ var kodiSelectRandomEpisodeAnd = function(req, res, RequestParams, andCall) {
           var e = episodes[i];
           console.log("Playing season " + e.season + " episode " + e.episode
                       + " (ID: " + e.episodeid + "), played " + e.playcount + " times before");
-          andCall( episodes[i].episodeid );
+          return andCall( episodes[i].episodeid );
         }
         count += maxPlayed - episodes[i].playcount + 1;
       }
