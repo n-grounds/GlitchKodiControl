@@ -382,7 +382,7 @@ var kodiPlayRandomEpisode = function(req, res, RequestParams) {
                 episodeid: episodes[i].episodeid
               }
             };
-          return kodi.Player.Open(param);
+          return kodi.Playlist.Add(param);
         }
         count += maxPlayed - episodes[i].playcount + 1;
       }
