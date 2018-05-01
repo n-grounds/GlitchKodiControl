@@ -398,24 +398,32 @@ var kodiQueueRandomEpisode = function(req, res, RequestParams) {
 }
 
 var kodiPlayNRandomEpisodes = function(req, res, RequestParams) {
-  kodiSelectRandomEpisodeAnd( req, res, RequestParams, function(episodeid) {
+  var episodes = [];
+  var p = kodiSelectRandomEpisodeAnd( req, res, RequestParams, function(episodeid) {
     var param = {
+      playlistid : 1,
       item: {
         episodeid: episodeid
       }
     };
-    return kodi.Player.Open(param);
+    kodi.Playlist.Add(param);
   } );
   for( var i = 1; i < RequestParams['count']; i++ ) {
+    p.then( function
     kodiSelectRandomEpisodeAnd( req, res, RequestParams, function(episodeid) {
-      var param = {
-        playlistid : 1,
-        item: {
-          episodeid: episodeid
-        }
-      };
-      return kodi.Playlist.Add(param);
+      episodes.push( episodeid );
     } );
+  }
+  console.log( 'Selected episodes ' + episodes + ' to play/queue' );
+  
+  var param = {
+    item: {
+      episodeid: episodes[0]
+    }
+  };
+  kodi.Player.Open(param);
+  for( var i = 1; i < episodes.length; i++ ) {
+    v
   }
   
   res.sendStatus(200);
@@ -435,7 +443,7 @@ var kodiSelectRandomEpisodeAnd = function(req, res, RequestParams, andCall) {
             ignorearticle: true
           }
         }
-  kodi.VideoLibrary.GetEpisodes(param).then(function (episodeResult) {
+  return kodi.VideoLibrary.GetEpisodes(param).then(function (episodeResult) {
     if(!(episodeResult && episodeResult.result && episodeResult.result.episodes && episodeResult.result.episodes.length > 0)) {
       throw new Error('no results');
     }
