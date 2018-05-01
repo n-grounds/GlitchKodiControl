@@ -398,19 +398,12 @@ var kodiQueueRandomEpisode = function(req, res, RequestParams) {
 }
 
 var kodiPlayNRandomEpisodes = function(req, res, RequestParams) {
-  var episodes = [];
   var p = kodiSelectRandomEpisodeAnd( req, res, RequestParams, function(episodeid) {
-    var param = {
-      item: {
-        episodeid: episodeid
-      }
-    };
-    kodi.Player.Open( param );
+    kodi.Player.Open( { item : { episodeid : episodeid } } );
     return episodeid;
   } );
   for( var i = 1; i < RequestParams['count']; i++ ) {
     p.then( function( lastEpisode ) {
-      episodes.push( lastEpisode );
       p = kodiSelectRandomEpisodeAnd( req, res, RequestParams, function(episodeid) {
         var param = {
           playlistid : 1,
@@ -423,10 +416,6 @@ var kodiPlayNRandomEpisodes = function(req, res, RequestParams) {
       } );
     } );
   }
-  p.then( function( lastEpisode ) {
-    episodes.push( lastEpisode );
-    console.log( 'Playing/queueing episodes ' + episodes );
-  } );
   
   res.sendStatus(200);
 }
