@@ -405,7 +405,7 @@ var kodiPlayNRandomEpisodes = function(req, res, RequestParams) {
         episodeid: episodeid
       }
     };
-    kodi.Player.Open(param);
+    kodi.Player.Open( param );
     return episodeid;
   } );
   for( var i = 1; i < RequestParams['count']; i++ ) {
@@ -418,7 +418,7 @@ var kodiPlayNRandomEpisodes = function(req, res, RequestParams) {
             episodeid: episodeid
           }
         };
-        kodi.Playlist.Add(param);
+        kodi.Playlist.Add( param );
         return episodeid;
       } );
     } );
