@@ -409,6 +409,7 @@ var kodiPlayNRandomEpisodes = function(req, res, RequestParams) {
   for( var i = 1; i < RequestParams['count']; i++ ) {
     kodiSelectRandomEpisodeAnd( req, res, RequestParams, function(episodeid) {
       var param = {
+        playlistid : 1,
         item: {
           episodeid: episodeid
         }
@@ -457,7 +458,7 @@ var kodiSelectRandomEpisodeAnd = function(req, res, RequestParams, andCall) {
         count += maxPlayed - episodes[i].playcount + 1;
         if( picked < count ) {
           var e = episodes[i];
-          console.log("Playing season " + e.season + " episode " + e.episode
+          console.log("Selected season " + e.season + " episode " + e.episode
                       + " (ID: " + e.episodeid + "), played " + e.playcount + " times before");
           return andCall( episodes[i].episodeid );
         }
