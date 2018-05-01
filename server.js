@@ -245,12 +245,13 @@ var kodiPlayNRandomEpisodesHandler = function(request, response) {
   tryActivateTv();
   console.log( request.query );
   var param = {
-    tvshowTitle: request.query.q.trim().toLowerCase()
+    tvshowTitle: request.query.q.trim().toLowerCase(),
+    count: parseInt( request.query.n.trim() )
   };
   
-  console.log("Random N Episodes request received to queue \"" + param["tvshowTitle"] + "\"");
+  console.log("Random N=" + param['count'] + " episodes request received to queue \"" + param["tvshowTitle"] + "\"");
   
-  //kodiFindTvshow(request, response, kodiQueueRandomEpisode, param);
+  kodiFindTvshow(request, response, kodiPlayNRandomEpisodes, param);
 };
 
 var kodiFindTvshow = function(req, res, nextAction, param) {
@@ -390,6 +391,27 @@ var kodiQueueRandomEpisode = function(req, res, RequestParams) {
     };
     return kodi.Playlist.Add(param);
   } );
+}
+
+var kodiPlayNRandomEpisodes = function(req, res, RequestParams) {
+  kodiSelectRandomEpisodeAnd( req, res, RequestParams, function(episodeid) {
+    var param = {
+      item: {
+        episodeid: episodeid
+      }
+    };
+    return kodi.Player.Open(param);
+  } );
+  for( var i = 1; i < RequestParams['count']; i++ ) {
+    kodiSelectRandomEpisodeAnd( req, res, RequestParams, function(episodeid) {
+      var param = {
+        item: {
+          episodeid: episodeid
+        }
+      };
+      return kodi.Playlist.Add(param);
+    } );
+  }
 }
 
 var kodiSelectRandomEpisodeAnd = function(req, res, RequestParams, andCall) {
