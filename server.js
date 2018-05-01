@@ -379,6 +379,8 @@ var kodiPlayRandomEpisode = function(req, res, RequestParams) {
     };
     return kodi.Player.Open(param);
   } );
+  
+  res.sendStatus(200);
 }
 
 var kodiQueueRandomEpisode = function(req, res, RequestParams) {
@@ -391,6 +393,8 @@ var kodiQueueRandomEpisode = function(req, res, RequestParams) {
     };
     return kodi.Playlist.Add(param);
   } );
+  
+  res.sendStatus(200);
 }
 
 var kodiPlayNRandomEpisodes = function(req, res, RequestParams) {
@@ -412,6 +416,8 @@ var kodiPlayNRandomEpisodes = function(req, res, RequestParams) {
       return kodi.Playlist.Add(param);
     } );
   }
+  
+  res.sendStatus(200);
 }
 
 var kodiSelectRandomEpisodeAnd = function(req, res, RequestParams, andCall) {
@@ -462,7 +468,6 @@ var kodiSelectRandomEpisodeAnd = function(req, res, RequestParams, andCall) {
   .catch(function(e) {
     console.log(e);
   });
-  res.sendStatus(200);
 };
 
 
