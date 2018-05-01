@@ -237,6 +237,21 @@ var kodiQueueRandomEpisodeHandler = function(request, response) {
   kodiFindTvshow(request, response, kodiQueueRandomEpisode, param);
 };
 
+app.get("/playnrandomepisodes", function (request, response) {
+  validateRequest(request, response, kodiPlayNRandomEpisodesHandler)
+});
+
+var kodiPlayNRandomEpisodesHandler = function(request, response) {
+  tryActivateTv();
+  console.log( request.query );
+  var param = {
+    tvshowTitle: request.query.q.trim().toLowerCase()
+  };
+  
+  console.log("Random N Episodes request received to queue \"" + param["tvshowTitle"] + "\"");
+  
+  //kodiFindTvshow(request, response, kodiQueueRandomEpisode, param);
+};
 
 var kodiFindTvshow = function(req, res, nextAction, param) {
   kodi.VideoLibrary.GetTVShows()
