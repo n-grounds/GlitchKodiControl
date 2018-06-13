@@ -2,7 +2,7 @@
 // where your node app starts
 
 // init project
-var serverLocation = require('fs').readFileSync( 'server.txt', { 'encoding' : 'utf8' } );
+var serverLocation = require('fs').readFileSync( 'server.txt', { 'encoding' : 'utf8' } ).trim();
 require('dotenv').load();
 var express = require('express');
 var app = express();
