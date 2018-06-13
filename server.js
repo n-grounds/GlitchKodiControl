@@ -2,13 +2,14 @@
 // where your node app starts
 
 // init project
+var serverLocation = require('fs').readFileSync( 'server.txt', { 'encoding' : 'utf8' } );
 require('dotenv').load();
 var express = require('express');
 var app = express();
 
 var Fuse = require('fuse.js')
 var Kodi = require('./kodi-connection/node.js');
-var kodi = new Kodi(process.env.KODI_IP, process.env.KODI_PORT, process.env.KODI_USER, process.env.KODI_PASSWORD);
+var kodi = new Kodi(serverLocation, process.env.KODI_PORT, process.env.KODI_USER, process.env.KODI_PASSWORD);
 
 // Set option for fuzzy search
 var fuzzySearchOptions = {
