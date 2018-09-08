@@ -26,16 +26,13 @@ module.exports = function(fetch) {
       'Accept': "application/json",
       'Authorization': kodi_auth
     };
-    var url = this.url;
+
     return fetch(this.url, {
         method: 'POST',
         body: body,
         headers: headers
       })
       .then(function (response) {
-        var util = require('util')
-        console.log( 'Raw response from ' + url + ': ' + util.inspect(response) );
-        console.log(response.json());
         return response.json();
       })
       .then(function(data) {

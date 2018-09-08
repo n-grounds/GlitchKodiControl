@@ -45,13 +45,7 @@ module.exports = [
   },
   {
     name: 'VideoLibrary',
-    methods: ['Clean', 'Export', 'GetEpisodeDetails', 'GetEpisodes', 'GetGenres',
-              'GetMovieDetails', 'GetMovieSetDetails', 'GetMovieSets', 'GetMovies',
-              'GetMusicVideoDetails', 'GetMusicVideos', 'GetRecentlyAddedEpisodes',
-              'GetRecentlyAddedMovies', 'GetRecentlyAddedMusicVideos', 'GetSeasons',
-              'GetTVShowDetails', 'GetTVShows', 'RemoveEpisode', 'RemoveMovie',
-              'RemoveMusicVideo', 'RemoveTVShow', 'Scan', 'SetEpisodeDetails',
-              'SetMovieDetails', 'SetMusicVideoDetails', 'SetTVShowDetails']
+    methods: ['Clean', 'Export', 'GetEpisodeDetails', 'GetEpisodes', 'GetGenres', 'GetMovieDetails', 'GetMovieSetDetails', 'GetMovieSets', 'GetMovies', 'GetMusicVideoDetails', 'GetMusicVideos', 'GetRecentlyAddedEpisodes', 'GetRecentlyAddedMovies', 'GetRecentlyAddedMusicVideos', 'GetSeasons', 'GetTVShowDetails', 'GetTVShows', 'RemoveEpisode', 'RemoveMovie', 'RemoveMusicVideo', 'RemoveTVShow', 'Scan', 'SetEpisodeDetails', 'SetMovieDetails', 'SetMusicVideoDetails', 'SetTVShowDetails']
   },
   {
     name: 'XBMC',
