@@ -271,6 +271,7 @@ var kodiFindTvshow = function(req, res, nextAction, param) {
         var tvshowFound = searchResult[0];
         console.log("Found tv show \"" + tvshowFound.label + "\" (" + tvshowFound.tvshowid + ")");
         param["tvshowid"] = tvshowFound.tvshowid;
+        param["tvshowname"] = tvshowFound.label;
         nextAction (req, res, param);
       } else {
         throw new Error("Couldn\'t find tv show \"" + param["tvshowTitle"] + "\"");
@@ -422,12 +423,12 @@ var kodiPlayNRandomEpisodes = function(req, res, RequestParams) {
 }
 
 var kodiSelectRandomEpisodeAnd = function(req, res, RequestParams, andCall) {
-  console.log("Searching for random episode of Show ID " + RequestParams["tvshowid"]  + "...");          
+  console.log("Searching for random episode of \"" + RequestParams["tvshowname"] + "\" (id " + RequestParams["tvshowid"]  + ") ...");          
 
   // Build filter to search unwatched episodes
   var param = {
           tvshowid: RequestParams["tvshowid"],
-          properties: ['playcount', 'showtitle', 'season', 'episode'],
+          properties: ['playcount', 'season', 'episode'],
           // Sort the result so we can grab the first unwatched episode
           sort: {
             order: 'ascending',
@@ -442,7 +443,7 @@ var kodiSelectRandomEpisodeAnd = function(req, res, RequestParams, andCall) {
     var episodes = episodeResult.result.episodes;
     // Check if there are episodes for this TV show
     if (episodes) {
-      console.log("found " + episodes.length + " episodes of " + episodes[0].showtitle);
+      console.log("Found " + episodes.length + " episodes of " + RequestParams["tvshowname"]);
       // Calculate the number of episodes + total play counts
       // we'll use an "inverse of play count" as a way to bias the
       // random selection, so it is possible to randomly select the
