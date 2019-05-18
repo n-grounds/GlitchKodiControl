@@ -428,13 +428,7 @@ var kodiSelectRandomEpisodeAnd = function(req, res, RequestParams, andCall) {
   // Build filter to search unwatched episodes
   var param = {
           tvshowid: RequestParams["tvshowid"],
-          properties: ['playcount', 'season', 'episode', 'originaltitle'],
-          // Sort the result so we can grab the first unwatched episode
-          sort: {
-            order: 'ascending',
-            method: 'episode',
-            ignorearticle: true
-          }
+          properties: ['playcount', 'season', 'episode'],
         }
   return kodi.VideoLibrary.GetEpisodes(param).then(function (episodeResult) {
     if(!(episodeResult && episodeResult.result && episodeResult.result.episodes && episodeResult.result.episodes.length > 0)) {
@@ -459,7 +453,7 @@ var kodiSelectRandomEpisodeAnd = function(req, res, RequestParams, andCall) {
         if( picked < count ) {
           var e = episodes[i];
           console.log("Selected season " + e.season + " episode " + e.episode
-                      + " (ID: " + e.episodeid + ") \"" + e.originaltitle + "\", played " + e.playcount + " times before");
+                      + " (ID: " + e.episodeid + ") \"" + e.label + "\", played " + e.playcount + " times before");
           return andCall( e.episodeid );
         }
       }
