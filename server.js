@@ -428,7 +428,7 @@ var kodiSelectRandomEpisodeAnd = function(req, res, RequestParams, andCall) {
   // Build filter to search unwatched episodes
   var param = {
           tvshowid: RequestParams["tvshowid"],
-          properties: ['playcount', 'season', 'episode'],
+          properties: ['playcount', 'season', 'episode', 'originaltitle'],
           // Sort the result so we can grab the first unwatched episode
           sort: {
             order: 'ascending',
@@ -443,25 +443,24 @@ var kodiSelectRandomEpisodeAnd = function(req, res, RequestParams, andCall) {
     var episodes = episodeResult.result.episodes;
     // Check if there are episodes for this TV show
     if (episodes) {
-      console.log("Found " + episodes.length + " episodes of " + RequestParams["tvshowname"]);
+      console.log(`Found ${episodes.length} episodes of ${RequestParams["tvshowname"]}`);
       // Calculate the number of episodes + total play counts
       // we'll use an "inverse of play count" as a way to bias the
       // random selection, so it is possible to randomly select the
       // most watched episode, but more probable to select the lesser
       // watched episode(s)
       var maxPlayed = episodes.map(function(item) { return item.playcount; }).reduce(function(l, r) { return Math.max(l, r); });
-      console.log('maxPlayed = ' + maxPlayed);
       var bigCount = episodes.map(function (item) { return maxPlayed - item.playcount + 1; })
           .reduce(function(left, right) { return left + right; });
       var picked = Math.floor( Math.random() * bigCount );
-      console.log('Random selection: ' + picked +  ' (out of ' + bigCount + ', maxPlayed=' + maxPlayed + ')');
+      console.log(`Random selection: ${picked} (out of ${bigCount}, maxPlayed=${maxPlayed})`);
       for( var i = 0, count = 0; i < episodes.length; i++ ) {
         count += maxPlayed - episodes[i].playcount + 1;
         if( picked < count ) {
           var e = episodes[i];
           console.log("Selected season " + e.season + " episode " + e.episode
-                      + " (ID: " + e.episodeid + "), played " + e.playcount + " times before");
-          return andCall( episodes[i].episodeid );
+                      + " (ID: " + e.episodeid + ") \"" + e.originaltitle + "\", played " + e.playcount + " times before");
+          return andCall( e.episodeid );
         }
       }
       console.log("ERROR! Picked " + picked + " out of " + bigCount + " but didn't select any of " + episodes.length + " episodes?");
