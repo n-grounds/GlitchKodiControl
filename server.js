@@ -271,7 +271,6 @@ var kodiFindTvshow = function(req, res, nextAction, param) {
         var tvshowFound = searchResult[0];
         console.log("Found tv show \"" + tvshowFound.label + "\" (" + tvshowFound.tvshowid + ")");
         param["tvshowid"] = tvshowFound.tvshowid;
-        param["tvshowname"] = tvshowFound.label;
         nextAction (req, res, param);
       } else {
         throw new Error("Couldn\'t find tv show \"" + param["tvshowTitle"] + "\"");
@@ -423,12 +422,18 @@ var kodiPlayNRandomEpisodes = function(req, res, RequestParams) {
 }
 
 var kodiSelectRandomEpisodeAnd = function(req, res, RequestParams, andCall) {
-  console.log("Searching for random episode of \"" + RequestParams["tvshowname"] + "\" (id " + RequestParams["tvshowid"]  + ") ...");          
+  console.log("Searching for random episode of Show ID " + RequestParams["tvshowid"]  + "...");          
 
   // Build filter to search unwatched episodes
   var param = {
           tvshowid: RequestParams["tvshowid"],
-          properties: ['playcount', 'season', 'episode'],
+          properties: ['playcount', 'showtitle', 'season', 'episode'],
+          // Sort the result so we can grab the first unwatched episode
+          sort: {
+            order: 'ascending',
+            method: 'episode',
+            ignorearticle: true
+          }
         }
   return kodi.VideoLibrary.GetEpisodes(param).then(function (episodeResult) {
     if(!(episodeResult && episodeResult.result && episodeResult.result.episodes && episodeResult.result.episodes.length > 0)) {
@@ -437,24 +442,25 @@ var kodiSelectRandomEpisodeAnd = function(req, res, RequestParams, andCall) {
     var episodes = episodeResult.result.episodes;
     // Check if there are episodes for this TV show
     if (episodes) {
-      console.log(`Found ${episodes.length} episodes of ${RequestParams["tvshowname"]}`);
+      console.log("found " + episodes.length + " episodes of " + episodes[0].showtitle);
       // Calculate the number of episodes + total play counts
       // we'll use an "inverse of play count" as a way to bias the
       // random selection, so it is possible to randomly select the
       // most watched episode, but more probable to select the lesser
       // watched episode(s)
       var maxPlayed = episodes.map(function(item) { return item.playcount; }).reduce(function(l, r) { return Math.max(l, r); });
+      console.log('maxPlayed = ' + maxPlayed);
       var bigCount = episodes.map(function (item) { return maxPlayed - item.playcount + 1; })
           .reduce(function(left, right) { return left + right; });
       var picked = Math.floor( Math.random() * bigCount );
-      console.log(`Random selection: ${picked} (out of ${bigCount}, maxPlayed=${maxPlayed})`);
+      console.log('Random selection: ' + picked +  ' (out of ' + bigCount + ', maxPlayed=' + maxPlayed + ')');
       for( var i = 0, count = 0; i < episodes.length; i++ ) {
         count += maxPlayed - episodes[i].playcount + 1;
         if( picked < count ) {
           var e = episodes[i];
           console.log("Selected season " + e.season + " episode " + e.episode
-                      + " (ID: " + e.episodeid + ") \"" + e.label + "\", played " + e.playcount + " times before");
-          return andCall( e.episodeid );
+                      + " (ID: " + e.episodeid + "), played " + e.playcount + " times before");
+          return andCall( episodes[i].episodeid );
         }
       }
       console.log("ERROR! Picked " + picked + " out of " + bigCount + " but didn't select any of " + episodes.length + " episodes?");
