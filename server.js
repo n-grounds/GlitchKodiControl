@@ -452,18 +452,20 @@ var kodiSelectRandomEpisodeAnd = function(req, res, RequestParams, andCall) {
       console.log('maxPlayed = ' + maxPlayed);
       var bigCount = episodes.map(function (item) { return maxPlayed - item.playcount + 1; })
           .reduce(function(left, right) { return left + right; });
-      var picked = Math.floor( Math.random() * bigCount );
-      console.log('Random selection: ' + picked +  ' (out of ' + bigCount + ', maxPlayed=' + maxPlayed + ')');
-      for( var i = 0, count = 0; i < episodes.length; i++ ) {
-        count += maxPlayed - episodes[i].playcount + 1;
-        if( picked < count ) {
-          var e = episodes[i];
-          console.log("Selected season " + e.season + " episode " + e.episode
-                      + " (ID: " + e.episodeid + "), played " + e.playcount + " times before");
-          return andCall( episodes[i].episodeid );
+      //var picked = Math.floor( Math.random() * bigCount );
+      fetch('https://www.random.org/integers/?num=1&min=1&max='+bigCount+'&format=plain&col=1&base=10').then(res => res.text()).then(picked => {
+        console.log('Random selection: ' + picked +  ' (out of ' + bigCount + ', maxPlayed=' + maxPlayed + ')');
+        for( var i = 0, count = 0; i < episodes.length; i++ ) {
+          count += maxPlayed - episodes[i].playcount + 1;
+          if( picked < count ) {
+            var e = episodes[i];
+            console.log("Selected season " + e.season + " episode " + e.episode
+                        + " (ID: " + e.episodeid + "), played " + e.playcount + " times before");
+            return andCall( episodes[i].episodeid );
+          }
         }
-      }
-      console.log("ERROR! Picked " + picked + " out of " + bigCount + " but didn't select any of " + episodes.length + " episodes?");
+        console.log("ERROR! Picked " + picked + " out of " + bigCount + " but didn't select any of " + episodes.length + " episodes?");
+      });
     }
   })
   .catch(function(e) {
