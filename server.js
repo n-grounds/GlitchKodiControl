@@ -7,9 +7,11 @@ require('dotenv').load();
 var express = require('express');
 var app = express();
 
-var Fuse = require('fuse.js')
+var Fuse = require('fuse.js');
 var Kodi = require('./kodi-connection/node.js');
 var kodi = new Kodi(serverLocation, process.env.KODI_PORT, process.env.KODI_USER, process.env.KODI_PASSWORD);
+
+var fetch = require('node-fetch');
 
 // Set option for fuzzy search
 var fuzzySearchOptions = {
